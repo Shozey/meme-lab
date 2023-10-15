@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Image/Video Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Set a fixed height for the container, adjust as needed */
+        }
+
+        .media-wrapper {
+            max-width: 100%;
+            max-height: 100%; /* Ensure the media doesn't overflow the container */
+            width: auto;
+            height: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        img, video {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .overlay-buttons {
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .container:hover .overlay-buttons {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="media-wrapper">
+        {% if is_video %}
+            <video id="media" autoplay loop controls playsinline>
+                <source src="{{ url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        {% else %}
+            <img src="{{ url }}" alt="Image">
+        {% endif %}
+    </div>
+
+    <div class="overlay-buttons">
+        <button type="button" class="btn btn-success" style="" onclick="location.href='/previous?idx={{ idx }}'">Previous</button>
+        <div class="" role="group" aria-label="Basic mixed styles example">
+            <button type="button" class="btn btn-warning">Save</button>
+            <button type="button" class="btn btn-warning" onclick="copyURL('{{ url }}')">Copy</button>
+        </div>
+        <button type="button" class="btn btn-success" style="" onclick="location.href='/next?idx={{ idx }}'">Next</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+<script>
+
+        // Diese Funktion wird aufgerufen, wenn eine Taste gedrückt wird
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "ArrowRight") {
+                // Seek the video forward by 10 seconds (adjust as needed)
+                //alert("test")
+                video.currentTime += 5;
+            }
+            if (event.key === "ArrowLeft") {
+                // Seek the video backward by 10 seconds (adjust as needed)
+                video.currentTime -= 5;
+            }
+            if (event.key === "ArrowDown") {
+                location.href = '/next?idx={{ idx }}'; // Leitet zur "Next" -Seite weiter
+            }
+            if (event.key === "ArrowUp") {
+                location.href = '/previous?idx={{ idx }}'; // Leitet zur "Next" -Seite weiter
+            }
+        });
+
+    function copyURL(url) {
+        // Create a textarea element and set its value to the URL
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+
+        // Append the textarea to the body and select its content
+        document.body.appendChild(textArea);
+        textArea.select();
+
+        // Copy the selected text to the clipboard
+        document.execCommand('copy');
+
+        // Remove the textarea
+        document.body.removeChild(textArea);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% extends "globals.html" %}
+    {% block title %}Meme Lab{% endblock %}
+{% block head %}
+{% endblock %}
+{% block content %}
+    <h1>Welcome to Meme Lab!</h1>
+    <form action="{{ url_for('validate_post') }}" method='POST'>
+        <p><h3>Enter login credentials:</h3></p>
+        <p><input type='text' name='user-name' required autofocus placeholder='Username'/></p>
+        <p><input type='text' name='password' required placeholder='Password'/></p>
+        <p><input type='submit' value='Log in'/></p>
+    </form>
+{% endblock %}
+{% block boilerplate %}
+{% endblock %}

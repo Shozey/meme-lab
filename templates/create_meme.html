@@ -1,0 +1,55 @@
+{% extends "globals.html" %}
+    {% block title %}Image/Video Viewer{% endblock %}
+{% block head %}
+    <style>
+        .overlay-label {
+            position: absolute;
+            top: calc(50% + {{y}}%);
+            left: calc(50% + {{x}}%);
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            max-width: 200px;
+            max-height: 100px;
+            word-wrap: break-word;
+            transform: translate(-50%, -50%); /* Center the label */
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="media-wrapper">
+            {% if is_video %}
+                <video id="media" autoplay loop muted controls playsinline>
+                    <source src="{{ url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            {% else %}
+                <img src="{{ url }}" alt="Image">
+            {% endif %}
+            <div class="overlay-label">
+                <p id="labelText"></p>
+            </div>
+        </div>
+
+        <div class="overlay-buttons">
+            <button type="button" class="btn btn-success" style="" onclick="location.href='/create_meme'">Next MeiMei</button>
+            <button type="button" class="btn btn-success" style="" onclick="location.href='/meme_submit'">Submit</button>
+        </div>
+    </div>
+    <div class="text-input-container" style="position: absolute; top: 10px; right: 10px;">
+        <input type="text" class="form-control" placeholder="Text" id="textInput" maxlength="50">
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+        // Get references to the input field and label
+        const textInput = document.getElementById('textInput');
+        const labelText = document.getElementById('labelText');
+
+        // Add an event listener to the input field to update the label text
+        textInput.addEventListener('input', () => {
+            labelText.innerText = textInput.value;
+        });
+    </script>
+{% endblock %}
+{% block boilerplate %}
+{% endblock %}

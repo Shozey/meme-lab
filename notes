@@ -1,0 +1,24 @@
+Datenbank:
+    MongoDB um Bilder und Memes zu speichern
+
+    Bild hat unique hash ID, binäre Bilddaten, Liste von Textfeldkoordinaten, Dateiformat falls mehr als png erlaubt ist
+    General hat total played
+
+Cache Datenbank:
+    Meme hat total points, total meme buddies, total upvotes, total mehs, total downvotes, Bild ID
+    Nutzer hat ID
+
+Flask app:
+    für Make it meme und Sessions
+
+Restful API für Abfragen von Memes über HTTP-Requests
+
+Cookies fürs Speichern von User Infos
+Expliziter logout um den Cookie zu löschen
+
+Static memes für dauerhaft in der Datenbank gespeicherte memes, haben begrenzte Anzahl an möglichen Hash IDs, ~1000
+Temp memes für memes, die nur bis zum Ende der Session gespeichert werden
+
+Cache Datenbank, um bearbeitete Meme-Templates zu speichern
+
+pymongo, MongoDB Community Server, JSON für RESTful APIs
