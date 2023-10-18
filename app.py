@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, abort, session
+from flask import Flask, redirect, url_for, render_template, request, abort, session, jsonify
 from flask_hashing import Hashing
 from flask_session import Session
 
@@ -44,45 +44,23 @@ def login():
     return redirect(url_for('create_meme'))
 
 
-@app.post('/validate')
-def validate_post():
+@app.route('/validate', methods=['POST'])
+def validate():
     # get credentials from form
     user_name = request.form['user-name']
     password = request.form['password']
 
     # fail login attempt if one or more is empty
     if not any([user_name, password]):
-        return redirect(url_for('login_failed'))
+        return jsonify({'success': False})
 
     # check for valid password
-    hashed_password = hashing.hash_value(password)
-    if hashing.check_value(hashed_password, app.config['PASSWORD']):
+    if hashing.check_value(hashing.hash_value(password), app.config['PASSWORD']):
         # set persistent cookie with user credentials
         session['user_name'] = user_name
-        return redirect(url_for('login_successful'))
+        return jsonify({'success': True})
     else:
-        return redirect(url_for('login_failed'))
-
-
-@app.get('/validate')
-def validate_get():
-    # return 403 forbidden if method is HTTP GET
-    abort(403)
-
-
-# TODO disallow access by HTTP GET
-@app.route('/login-successful')
-def login_successful():
-    check_and_abort()
-    # successful login redirects here
-    return render_template('login-successful.html')
-
-
-# TODO disallow access by HTTP GET
-@app.route('/login-failed')
-def login_failed():
-    # failed login redirects here
-    return render_template('login-failed.html')
+        return jsonify({'success': False})
 
 
 @app.route('/logout')
