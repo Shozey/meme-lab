@@ -1,9 +1,6 @@
-import datetime
-from flask import Flask, redirect, url_for, render_template, make_response, request, abort, session
+from flask import Flask, redirect, url_for, render_template, request, abort, session
 from flask_hashing import Hashing
 from flask_session import Session
-import random
-import requests
 
 # local imports
 import db_client
@@ -49,7 +46,7 @@ def validate_post():
     password = request.form['password']
 
     # fail login attempt if one or more is empty
-    if not any((user_name, password)):
+    if not any([user_name, password]):
         return redirect(url_for('login_failed'))
 
     # check for valid password
