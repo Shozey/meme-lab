@@ -16,11 +16,16 @@ sess = Session()
 app.config.from_pyfile('config.py')
 
 # create database client
-meimei_db = db_client.DB_Client_MEME()
+meimei_db = db_client.DbClientMeme()
 
 
 def is_valid_session():
     return session.get('user_name') is not None
+
+
+def check_and_abort():
+    if not session.get('user_name'):
+        abort(403)
 
 
 @app.route('/')
@@ -68,8 +73,7 @@ def validate_get():
 # TODO disallow access by HTTP GET
 @app.route('/login-successful')
 def login_successful():
-    if not is_valid_session():
-        abort(403)
+    check_and_abort()
     # successful login redirects here
     return render_template('login-successful.html')
 
@@ -92,30 +96,33 @@ def logout():
 @app.route('/create_meme')
 def create_meme():
     # check login status
-    if not is_valid_session():
-        abort(403)
+    check_and_abort()
 
     # get Meme from DB
     meimei = list(meimei_db.get_rand_image())[0]
-    img_url = meimei["img_url"]
-    text_pos = meimei["text_pos"]
+    img_url = meimei['img_url']
+    text_pos = meimei['text_pos']
 
     # check if meimei url is a Video
     is_video = any([img_url.endswith('.mp4'), img_url.endswith('.avi'), img_url.endswith('.mov')])
 
-    return render_template('create_meme.html', url=img_url, is_video=is_video, x=text_pos[0], y=text_pos[1])
+    return render_template('create_meme.html',
+                           url=img_url,
+                           is_video=is_video,
+                           x=text_pos[0],
+                           y=text_pos[1])
 
 
 # submit a meme in a meme lab game
 @app.route('/submit')
 def submit():
-    return render_template("meme_submit.html")
+    return render_template('meme_submit.html')
 
 
 # view all memes in database
 @app.route('/view')
 def view_meme():
-    return render_template('view_memes.html')
+    return render_template("view_memes.html")
 
 
 # view specific memes, enables sharing meme urls
