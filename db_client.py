@@ -66,7 +66,7 @@ class DbClientTemp:
         self.client.close()
 
 
-client = DbClientMeme()
-client.add_image(img_url='https://cdn.discordapp.com/attachments/453517620696711178/931038252926922782/video0-52.mov',
-                 text_pos=[20, 30])
-client.close()
+#client = DbClientMeme()
+#client.add_image(img_url='https://cdn.discordapp.com/attachments/453517620696711178/931038252926922782/video0-52.mov',
+#                 text_pos=[20, 30])
+#client.close()

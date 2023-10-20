@@ -40,7 +40,9 @@ def login():
     if not is_valid_session():
         # display if user doesn't have a valid session
         return render_template('login.html')
+
     # skip to session if user has valid session
+    
     return redirect(url_for('create_meme'))
 
 
@@ -80,6 +82,7 @@ def create_meme():
     meimei = list(meimei_db.get_rand_image())[0]
     img_url = meimei['img_url']
     text_pos = meimei['text_pos']
+    print(f"{img_url = }  ||||  {text_pos = }")
 
     # check if meimei url is a Video
     is_video = any([img_url.endswith('.mp4'), img_url.endswith('.avi'), img_url.endswith('.mov')])
