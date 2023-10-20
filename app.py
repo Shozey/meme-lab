@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, abort, session, jsonify
+from flask import Flask, redirect, url_for, render_template, request, abort, session, jsonify, make_response
 from flask_hashing import Hashing
 from flask_session import Session
 from game import Game, Player
@@ -11,7 +11,7 @@ import db_client
 # global configuration
 app = Flask(__name__)
 hashing = Hashing(app)
-sess = Session()
+current_session = Session()
 game = Game()
 
 # import configuration from config.py
@@ -23,6 +23,7 @@ meimei_db = db_client.DbClientMeme()
 
 def is_valid_session():
     return session.get('user_name') is not None
+    # session.get('user_name') in [player.name for player in game.memes.keys()]
 
 
 def check_and_abort():
@@ -45,8 +46,7 @@ def login():
         return render_template('login.html')
 
     # skip to session if user has valid session
-
-    return redirect(url_for('create_meme'))
+    return redirect(url_for('lobby'))
 
 
 @app.route('/validate', methods=['POST'])
@@ -69,7 +69,10 @@ def validate():
         game.add_player(player)
         return jsonify({'success': True})
     else:
-        return jsonify({'success': False})
+        data['success'] = False
+
+    print(data)
+    return jsonify(data)
 
 
 @app.route('/logout')
@@ -85,6 +88,8 @@ def create_meme():
     # check login status
     check_and_abort()
 
+    game.phase = GamePhase.Creating
+    print(game.phase)
     # get Meme from DB
     meimei = list(meimei_db.get_rand_image())[0]
     img_url = meimei['img_url']
@@ -98,25 +103,31 @@ def create_meme():
                            url=img_url,
                            is_video=is_video,
                            x=text_pos[0],
-                           y=text_pos[1])
+                           y=text_pos[1],
+                           name=session.get("user_name"))
 
 
 # submit a meme in a meme lab game
-@app.route('/submit')
+@app.route('/submit', methods=['POST'])
 def submit():
+    data = request.get_json()  # Extract data from the JSON POST request
+    text = data.get('text')
+    url = data.get('url')
+    name = data.get("name")
+    # Select player from memes by name
+    player = [player for player in game.memes.keys() if player.name == name]
+    game.submit(player, url, text)
     return render_template('meme_submit.html')
 
 
 @app.route('/wait_for_game_start')
 def wait_for_game_start():
     # return to /login if the user aren't in the game
-    if session.get("user_name", None) not in [player.name for player in game.memes.keys()]:
-        return redirect('/login')
+    if not is_valid_session():
+        print("12345")
+        return redirect(url_for('login'))
 
-    if not game.round_activ:
-        return render_template('wait_for_game_start.html')
-    print()
-    return redirect(url_for("/create_meme"))
+    return render_template('lobby.html')
 
 
 # view all memes in database
@@ -132,7 +143,28 @@ def view(meme_url):
     return meme_url
 
 
+@app.route('/admin_panel')
+def admin_panel():
+    return render_template("admin_panel.html")
+
+
+@app.route('/admin_panel/game_state')
+def admin_state_game():
+    match game.phase:
+        case GamePhase.Waiting:
+            game.phase = GamePhase.Creating
+        case _:
+            game.phase = GamePhase.Waiting
+
+    return redirect(url_for("admin_panel"))
+
+
+#@app.route('/admin_panel/start_game')
+#def admin_start_game():
+#    return redirect(url_for("admin_panel"))
+
+
 if __name__ == '__main__':
     # initialize flask session
-    sess.init_app(app)
+    current_session.init_app(app)
     app.run()

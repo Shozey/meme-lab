@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.11 (meme-lab)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (meme-lab)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="meme-lab" project-jdk-type="Python SDK" />
 </project>

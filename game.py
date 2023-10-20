@@ -10,30 +10,35 @@ class Player:
         self.downvote = 0
 
 
+# phase 0 in lobby warten bis alle spieler online sind
+# phase 1 meme erstellen
+# phase 2 meme anschauen
+
+
 class Game:
-    def __init__(self, max_player_count=-1, max_rounds=5):
-        self.max_player_count = max_player_count
+    def __init__(self, max_rounds=1):
         self.max_rounds = max_rounds
         self.memes: Dict[Player, list] = {}
         self.round = 0
-        self.round_activ = False
+        self.phase = GamePhase.Waiting
 
     def add_player(self, player: Player):
-        if self.round_activ:
+        if self.phase:
             return False
-
-        # Activate the round when the maximum player count is reached
-        self.round_activ = (self.max_player_count == len(self.memes) - 1)
 
         self.memes[player] = None
 
         return True
+
+    def start_game(self):
+        self.phase = True
 
     def submit(self, player: Player, meme_id, text):
         self.memes[player] = [meme_id, text]
 
         print(f"der Player{player.name} hat ein meme hochgeladen")
         if all([m for m in self.memes.values()]):
-            # create meme is finish
-            return
+            # creating memes is finish
+            return True
+        return False
 
