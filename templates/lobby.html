@@ -1,0 +1,32 @@
+{% extends "globals.html" %}
+    {% block title %}Lobby{% endblock %}
+{% block head %}
+{% endblock %}
+{% block content %}
+    <script>
+        function loadGame() {
+            axios.get('/game_data')
+                .then(function (response) {
+                    console.log(response.data.game_phase);
+                    switch (response.data.game_phase) {
+                        case GamePhase.Waiting:
+                            location.href = '/create_meme';
+                            break;
+                        case GamePhase.Creating:
+                            // not implemented
+                            break;
+                        case GamePhase.Viewing:
+                            // not implemented
+                            break;
+                        case GamePhase.Results:
+                            // not implemented
+                            break;
+                    }
+                });
+        }
+        setInterval(loadGame, 2500);
+        loadGame();
+    </script>
+{% endblock %}
+{% block boilerplate %}
+{% endblock %}

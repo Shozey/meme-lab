@@ -1,7 +1,6 @@
 {% extends "globals.html" %}
     {% block title %}Meme Lab{% endblock %}
 {% block head %}
-    <script src='https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js'></script>
 {% endblock %}
 {% block content %}
     <h1>Welcome to Meme Lab!</h1>
@@ -12,6 +11,13 @@
         <p><input type='submit' value='Log in'/></p>
     </form>
     <script>
+        const GamePhase = {
+            Waiting: 1,
+            Creating: 2,
+            Viewing: 3,
+            Results: 4
+        };
+
         document.getElementById('login-data').addEventListener('submit', function (event) {
             event.preventDefault();
 
@@ -21,15 +27,21 @@
             // send POST request to Flask backend
             axios.post('/validate', formData)
                 .then(function (response) {
-                    console.log(response.success);
-                    if (response.data.success === true) {
-                        window.location.href = 'http://localhost:5000/';
-                        location.reload()
+                    console.log(response.data.success);
+                    console.log(response.data.game_phase);
+                    if (response.data.success) {
+                        console.log("test1")
+                        if (response.data.game_phase === GamePhase.Waiting) {
+                            console.log("test2")
+                            location.href = '/lobby';
+                        } else {
+                            console.log("test3")
+                            location.href = '/view';
+                        }
                     } else {
-                        alert('Login failed')
+                        alert('Login failed');
                     }
-                })
-                .catch(function (error) {});
+                });
         });
     </script>
 {% endblock %}

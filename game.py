@@ -1,4 +1,12 @@
 from typing import Dict
+from enum import IntEnum, auto
+
+
+class GamePhase(IntEnum):
+    Waiting = auto()
+    Creating = auto()
+    Viewing = auto()
+    Results = auto()
 
 
 class Player:
@@ -36,7 +44,7 @@ class Game:
     def submit(self, player: Player, meme_id, text):
         self.memes[player] = [meme_id, text]
 
-        print(f"der Player{player.name} hat ein meme hochgeladen")
+        print(f"der Player {player.name} hat ein meme hochgeladen")
         if all([m for m in self.memes.values()]):
             # creating memes is finish
             return True

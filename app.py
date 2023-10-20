@@ -1,10 +1,10 @@
 from flask import Flask, redirect, url_for, render_template, request, abort, session, jsonify, make_response
 from flask_hashing import Hashing
 from flask_session import Session
-from game import Game, Player
 
 # local imports
 import db_client
+from game import Game, Player, GamePhase
 
 # TODO implement logging
 
@@ -31,6 +31,23 @@ def check_and_abort():
         abort(403)
 
 
+def get_game_data():
+    return {
+        'max_rounds': game.max_rounds,
+        'memes': {player.id: memes for player, memes in game.memes.items()},
+        'current_round': game.round,
+        'game_phase': game.phase,
+        # ab hier nur die sachen zum debugging
+        'name': session.get("user_name")
+    }
+
+
+@app.route('/game_data')
+def game_data():
+    check_and_abort()
+    return get_game_data()
+
+
 @app.route('/')
 def root():
     # always redirect to '/login'
@@ -51,23 +68,27 @@ def login():
 
 @app.route('/validate', methods=['POST'])
 def validate():
+    data = get_game_data()
     # get credentials from form
     user_name = request.form['user-name']
     password = request.form['password']
 
     # fail login attempt if one or more is empty
     if not any([user_name, password]):
-        return jsonify({'success': False})
-
+        data['success'] = False
+        return jsonify(data)
     # check for valid password
     if hashing.hash_value(password) == app.config['PASSWORD']:
         # set persistent cookie with user credentials
         session['user_name'] = user_name
-
+        data['success'] = True
         # create a player Object and add it to the game
-        player = Player(user_name)
-        game.add_player(player)
-        return jsonify({'success': True})
+        # user_name not in [player.name for player in game.memes.keys()]
+        if game.phase == GamePhase.Waiting:
+            player = Player(user_name)
+            game.add_player(player)
+
+    # if password is wrong
     else:
         data['success'] = False
 
@@ -120,8 +141,10 @@ def submit():
     return render_template('meme_submit.html')
 
 
-@app.route('/wait_for_game_start')
-def wait_for_game_start():
+@app.route('/lobby')
+def lobby():
+    print(session.get('user_name'))
+    print([player.name for player in game.memes.keys()])
     # return to /login if the user aren't in the game
     if not is_valid_session():
         print("12345")
