@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for, render_template, request, abort, session, jsonify
 from flask_hashing import Hashing
 from flask_session import Session
+from game import Game, Player
 
 # local imports
 import db_client
@@ -11,6 +12,7 @@ import db_client
 app = Flask(__name__)
 hashing = Hashing(app)
 sess = Session()
+game = Game()
 
 # import configuration from config.py
 app.config.from_pyfile('config.py')
@@ -31,6 +33,7 @@ def check_and_abort():
 @app.route('/')
 def root():
     # always redirect to '/login'
+    print(game.memes)
     return redirect(url_for('login'))
 
 
@@ -42,7 +45,7 @@ def login():
         return render_template('login.html')
 
     # skip to session if user has valid session
-    
+
     return redirect(url_for('create_meme'))
 
 
@@ -57,9 +60,13 @@ def validate():
         return jsonify({'success': False})
 
     # check for valid password
-    if hashing.check_value(hashing.hash_value(password), app.config['PASSWORD']):
+    if hashing.hash_value(password) == app.config['PASSWORD']:
         # set persistent cookie with user credentials
         session['user_name'] = user_name
+
+        # create a player Object and add it to the game
+        player = Player(user_name)
+        game.add_player(player)
         return jsonify({'success': True})
     else:
         return jsonify({'success': False})
@@ -98,6 +105,18 @@ def create_meme():
 @app.route('/submit')
 def submit():
     return render_template('meme_submit.html')
+
+
+@app.route('/wait_for_game_start')
+def wait_for_game_start():
+    # return to /login if the user aren't in the game
+    if session.get("user_name", None) not in [player.name for player in game.memes.keys()]:
+        return redirect('/login')
+
+    if not game.round_activ:
+        return render_template('wait_for_game_start.html')
+    print()
+    return redirect(url_for("/create_meme"))
 
 
 # view all memes in database
